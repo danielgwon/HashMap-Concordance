@@ -52,5 +52,37 @@ def top_words(source, number):
             for w in words:
                 # FIXME: Complete this function
 
+                word = w.lower()
 
-print(top_words("alice.txt",10))  # COMMENT THIS OUT WHEN SUBMITTING TO GRADESCOPE
+                # check if the word is in the hash table
+                if word in keys:
+
+                    # if the word is in the hash table, add one to the value of it's node
+                    ht.put(word, ht.get(word) + 1)
+
+                # if the word is not in the hash table, add the word to the table with a value of one
+                else:
+                    keys.add(word)
+                    ht.put(word, 1)
+
+    # place all words and counts in an array as tuples
+    words_count = [(key, ht.get(key)) for key in keys]
+
+    # sort the words in the hash table by count
+    words_count.sort(reverse=True, key=sort_by_value)
+
+    return words_count[:number]
+
+def sort_by_value(tuple):
+    """
+    Returns the value element of the given tuple
+    :param tuple: a tuple with the following elements (key, value)
+    :return: value element of tuple
+    """
+    return tuple[1]
+
+
+# top_number = 10
+# word_values = top_words("alice.txt",top_number)
+# for i in range(top_number):
+#     print(i+1, word_values[i])

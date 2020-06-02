@@ -1,3 +1,5 @@
+# TODO: check if you need to reduce capacity by one when hashing due to 0-based indexing
+
 # hash_map.py
 # ===================================================
 # Implement a hash map with chaining
@@ -14,7 +16,7 @@ class SLNode:
 
 
 class LinkedList:
-    def __init__(self):
+    def __init__(self) -> object:
         self.head = None
         self.size = 0
 
@@ -62,6 +64,24 @@ class LinkedList:
                     return cur
                 cur = cur.next
         return None
+
+    def replace(self, key, value):
+        """
+        Replaces the value in the node with the given key with the given value
+
+        Pre-condition: there is a node with given key in the linked list
+        :param key: key of node
+        :param value: value to insert into the node
+        :return: n/a
+        """
+
+        # navigate to the node with the given key
+        cur = self.head
+        while cur.key != key:
+            cur = cur.next
+
+        # replace the node's current value with the given value
+        cur.value = value
 
     def __str__(self):
         out = '['
@@ -112,7 +132,10 @@ class HashMap:
         """
         Empties out the hash table deleting all links in the hash table.
         """
-        # FIXME: Write this function
+        self._buckets = []
+        for i in range(self.capacity):
+            self._buckets.append(LinkedList())
+        self.size = 0
 
     def get(self, key):
         """
@@ -122,7 +145,20 @@ class HashMap:
         Return:
             The value associated to the key. None if the link isn't found.
         """
-        # FIXME: Write this function
+
+        # get the index of the hash table
+        index = self._get_index(key)
+
+        # save result of contains
+        result = self._buckets[index].contains(key)
+
+        # if contains is None, return None
+        if result is None:
+            return None
+
+        # else, return the value of the returned node
+        else:
+            return result.value
 
     def resize_table(self, capacity):
         """
@@ -131,7 +167,37 @@ class HashMap:
         Args:
             capacity: the new number of buckets.
         """
-        # FIXME: Write this function
+
+        # create a new array of buckets
+        new_hash_table = []
+        for _ in range(capacity):
+            new_hash_table.append(LinkedList())
+
+        # check if current buckets are filled
+        if self.size == 0:
+            self._buckets = new_hash_table
+            self.capacity = capacity
+
+        else:
+            for bucket in self._buckets:
+
+                # if a bucket is filled, traverse through the linked list
+                if bucket.head is not None:
+
+                    # recalculate the hash for each node in the linked list using given capacity
+                    cur = bucket.head
+                    while cur is not None:
+                        new_index = self._get_index(cur.key, capacity)
+
+                        # add the key and value of the node to its new bucket in the new array of buckets
+                        new_hash_table[new_index].add_front(cur.key, cur.value)
+                        cur = cur.next
+
+                # if a bucket is not filled, continue to the next bucket
+
+        # update the hash map's buckets and capacity
+        self._buckets = new_hash_table
+        self.capacity = capacity
 
     def put(self, key, value):
         """
@@ -144,18 +210,21 @@ class HashMap:
             key: they key to use to has the entry
             value: the value associated with the entry
         """
-        # FIXME: Write this function
 
         # calculate the hash
-        index = self._hash_function()
+        index = self._get_index(key)
+        bucket = self._buckets[index]
 
         # navigate to the hash-specified index
-
         # search for key with contains()
-
         # if contains is true, replace the value
+        if self._buckets[index].contains(key):
+            bucket.replace(key, value)
 
         # if contains is false, add_front() the new link
+        else:
+            bucket.add_front(key, value)
+            self.size += 1
 
     def remove(self, key):
         """
@@ -165,7 +234,12 @@ class HashMap:
         Args:
             key: they key to search for and remove along with its value
         """
-        # FIXME: Write this function
+
+        # get the index in the hash table using the given key
+        index = self._get_index(key)
+
+        # use the LinkedList method, remove()
+        self._buckets[index].remove(key)
 
     def contains_key(self, key):
         """
@@ -175,19 +249,31 @@ class HashMap:
             True if the key is found False otherwise
 
         """
-        # FIXME: Write this function
+
+        # return False if the hash map is empty
+        if self.size == 0:
+            return False
+
+        else:
+
+            # calculate the index with the given key
+            index = self._get_index(key)
+            bucket = self._buckets[index]
+
+            if bucket.contains(key):
+                return True
+            return False
 
     def empty_buckets(self):
         """
         Returns:
             The number of empty buckets in the table
         """
-
+        # TODO: check if size is zero before checking all buckets
         empty = 0
         for bucket in self._buckets:
             if bucket.head is None:     # chain is empty
                 empty += 1
-
         return empty
 
     def table_load(self):
@@ -196,7 +282,20 @@ class HashMap:
             the ratio of (number of links) / (number of buckets) in the table as a float.
 
         """
-        # FIXME: Write this function
+        return self.size / self.capacity
+
+    def _get_index(self, key, capacity=None):
+        """
+        Used to calculate the index for a given key.
+        If the capacity is not given, use HashMap's current capacity value
+        :param key: key to calculate a hash with
+        :param capacity: number of buckets to calculate an appropriate index
+        :return: index of the appropriate bucket
+        """
+        if capacity is None:
+            capacity = self.capacity
+
+        return self._hash_function(key) % capacity
 
     def __str__(self):
         """

@@ -115,6 +115,8 @@ class TestStudentWordCount(unittest.TestCase):
     def test_top_word_count_1(self):
         """Test that the top word returned matches the standard count"""
         # check that the student hash map returns the exact list as the python dict
+        print(self.results)
+        print(self.standard_results)
         self.assertTrue(self.counts[0] == self.standard_counts[0])
 
     @weight(1)
