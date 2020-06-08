@@ -50,8 +50,6 @@ def top_words(source, number):
         for line in f:
             words = rgx.findall(line)
             for w in words:
-                # FIXME: Complete this function
-
                 word = w.lower()
 
                 # check if the word is in the hash table

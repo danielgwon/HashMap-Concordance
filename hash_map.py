@@ -1,5 +1,3 @@
-# TODO: check if you need to reduce capacity by one when hashing due to 0-based indexing
-
 # hash_map.py
 # ===================================================
 # Implement a hash map with chaining
@@ -269,7 +267,6 @@ class HashMap:
         Returns:
             The number of empty buckets in the table
         """
-        # TODO: check if size is zero before checking all buckets
         empty = 0
         for bucket in self._buckets:
             if bucket.head is None:     # chain is empty
